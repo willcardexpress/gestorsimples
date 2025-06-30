@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global theme transitions */
+html {
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+html:not(.dark) {
+  background-color: #FFFFFF;
+  color: #333333;
+}
+
+html.dark {
+  background-color: #121212;
+  color: #F5F5F5;
+}
+
+/* Smooth transitions for all theme-aware elements */
+* {
+  transition: 
+    background-color 0.3s ease-in-out,
+    border-color 0.3s ease-in-out,
+    color 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out;
+}
+
+/* Custom scrollbar for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #2D2D2D;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
+
+/* Light mode scrollbar */
+:not(.dark) ::-webkit-scrollbar {
+  width: 8px;
+}
+
+:not(.dark) ::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+:not(.dark) ::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+:not(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Animation for theme toggle */
+.theme-toggle-enter {
+  animation: theme-fade 0.3s ease-in-out;
+}
