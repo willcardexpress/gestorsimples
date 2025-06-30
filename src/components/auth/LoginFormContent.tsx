@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Shield, Mail, Lock, Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
+import { Shield, Mail, Lock, Eye, EyeOff, Loader2, UserPlus, AlertCircle } from 'lucide-react';
 
 interface LoginFormContentProps {
   onSwitchToRegister: () => void;
@@ -19,13 +19,22 @@ const LoginFormContent: React.FC<LoginFormContentProps> = ({ onSwitchToRegister 
     setIsLoading(true);
     setError('');
 
-    const success = await login(email, password);
-    
-    if (!success) {
-      setError('Email ou senha inválidos');
+    try {
+      const success = await login(email, password);
+      
+      if (!success) {
+        if (email === 'admin@iptv.com') {
+          setError('Criando usuário administrador... Tente novamente em alguns segundos.');
+        } else {
+          setError('Email ou senha inválidos. Verifique suas credenciais ou cadastre-se.');
+        }
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Erro ao fazer login. Tente novamente.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (
@@ -88,8 +97,11 @@ const LoginFormContent: React.FC<LoginFormContentProps> = ({ onSwitchToRegister 
         </div>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-500/20 border border-red-200 dark:border-red-500 rounded-lg p-3 text-red-700 dark:text-red-200 text-sm">
-            {error}
+          <div className="bg-red-50 dark:bg-red-500/20 border border-red-200 dark:border-red-500 rounded-lg p-3 flex items-start space-x-2">
+            <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="text-red-700 dark:text-red-200 text-sm">
+              {error}
+            </div>
           </div>
         )}
 
@@ -126,6 +138,9 @@ const LoginFormContent: React.FC<LoginFormContentProps> = ({ onSwitchToRegister 
           <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
             <p><strong>Admin:</strong> admin@iptv.com / admin123</p>
             <p><strong>Cliente:</strong> Cadastre-se ou crie via admin</p>
+          </div>
+          <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+            <p>* O usuário admin será criado automaticamente no primeiro login</p>
           </div>
         </div>
       </div>

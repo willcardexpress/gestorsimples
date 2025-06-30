@@ -107,6 +107,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const createAdminUser = async (): Promise<boolean> => {
+    try {
+      console.log('Creating admin user...');
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: 'admin@iptv.com',
+        password: 'admin123',
+        options: {
+          data: {
+            name: 'Administrator'
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Error creating admin user:', error);
+        return false;
+      }
+
+      if (data.user) {
+        console.log('Admin user created successfully');
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error creating admin user:', error);
+      return false;
+    }
+  };
+
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setLoading(true);
@@ -118,6 +149,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('Login error:', error.message);
+        
+        // If login fails for admin@iptv.com, try to create the admin user
+        if (email === 'admin@iptv.com' && password === 'admin123' && error.message.includes('Invalid login credentials')) {
+          console.log('Admin user not found, attempting to create...');
+          
+          const adminCreated = await createAdminUser();
+          if (adminCreated) {
+            // Wait a moment for the user to be fully created
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Try logging in again
+            const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+              email,
+              password
+            });
+
+            if (retryError) {
+              console.error('Retry login error:', retryError.message);
+              return false;
+            }
+
+            if (retryData.user) {
+              await handleAuthUser(retryData.user);
+              return true;
+            }
+          }
+        }
+        
         return false;
       }
 
